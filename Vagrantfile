@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :fabric do |fabric|
     fabric.fabfile_path = "./fabfile.py"
-    fabric.tasks = ["provision", ]
+    fabric.tasks = ["provision","run_app" ]
   end
 
   config.vm.network "forwarded_port", guest: 80, host: 8080

@@ -1,4 +1,4 @@
-import os
+import configparser
 from flask import Flask
 from flask import g
 from api.db.sparqldb import SparqlDB
@@ -9,7 +9,11 @@ from api.resources.url import URLHandler
 
 app = Flask(__name__)
 api = Api(app)
-app.config['SPARQL_ENDPOINT'] = os.environ['SPARQL_SERVER']
+
+config = configparser.ConfigParser()
+config.read('./config/restparql.cfg')
+
+app.config['SPARQL_ENDPOINT'] = config.get('SPARQL_SERVER', 'URL')
 
 
 @app.before_request

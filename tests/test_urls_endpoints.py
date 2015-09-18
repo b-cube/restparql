@@ -1,7 +1,6 @@
 import unittest
 import json
 import urllib.parse as _pu
-
 from api import restparql
 
 
@@ -19,10 +18,11 @@ class AppURLSTestCase(unittest.TestCase):
             "checked_on": "2015-07-20T12:00:00Z",
             "status_code": "%s",
             "status_message": "Some Message",
-            "status_family": "200",
+            "status_family_code": "200",
             "status_family_type": "Redirected message",
             "response_time": 235456,
-            "redirect_url": "www.new_example.com"
+            "redirect_url": "www.new_example.com",
+            "error": ""
         }\n
         """ % (url, code)
         self.mocked_response += response

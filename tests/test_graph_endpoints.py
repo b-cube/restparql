@@ -1,6 +1,4 @@
 import unittest
-import json
-import urllib.parse as _pu
 
 from api import restparql
 

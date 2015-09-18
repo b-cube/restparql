@@ -69,7 +69,7 @@ def configure_nginx_4():
     if exists('/etc/nginx/sites-enabled/nginx_flask') is False:
         sudo('touch /etc/nginx/sites-available/nginx_flask')
         sudo('ln -s /etc/nginx/sites-available/nginx_flask' +
-             ' /etc/nginx/sites-enabled/restparql')
+             ' /etc/nginx/sites-enabled/nginx_flask')
     sudo('cp ' + flask_dir + '/config/nginx_flask ' + nginx_dir)
     sudo('/etc/init.d/nginx restart')
 
@@ -87,6 +87,7 @@ def configure_supervisor_5():
 
 def run_app():
     """ Run the app! """
+    sudo('source ' + virtualenv_dir + '/bin/activate')
     with cd(flask_dir):
         sudo('supervisorctl start restparql')
 
@@ -102,3 +103,4 @@ def provision():
     install_virtualenv_packages_3()
     configure_nginx_4()
     configure_supervisor_5()
+

@@ -10,9 +10,9 @@ class AppIndexTestCase(unittest.TestCase):
         self.app = restparql.app.test_client()
 
     def test_index(self):
-        response = self.app.get('/', content_type='html/text')
+        response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("Placeholder" in str(response.data))
+        self.assertTrue("version" in str(response.data))
 
 
 if __name__ == '__main__':
