@@ -40,7 +40,7 @@ class TriplesHandler(Resource):
         if res is None:
             return self.invalid_req(500)
         if len(res['bindings']) == 0:
-            resp = {'triples': '', 'query': q}
+            resp = {'triples': ''}
         else:
-            resp = {'triples': res['bindings'], 'query': q}
+            resp = {'triples': res['bindings']}
         return resp

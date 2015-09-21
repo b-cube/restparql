@@ -6,6 +6,10 @@ from flask_restful import Api
 from api.resources.default import Index
 from api.resources.urls import URLStatusHandler
 from api.resources.url import URLHandler
+from api.resources.graph import GraphHandler
+from api.resources.predicates import PredicatesHandler
+from api.resources.triples import TriplesHandler
+from api.resources.uuid import UuidHandler
 
 app = Flask(__name__)
 api = Api(app)
@@ -13,7 +17,10 @@ api = Api(app)
 config = configparser.ConfigParser()
 config.read('./config/restparql.cfg')
 
-app.config['SPARQL_ENDPOINT'] = config.get('SPARQL_SERVER', 'URL')
+try:
+    app.config['SPARQL_ENDPOINT'] = config.get('SPARQL_SERVER', 'URL')
+except:
+    app.config['SPARQL_ENDPOINT'] = 'http://52.10.64.196:8080/parliament/sparql'
 
 
 @app.before_request
@@ -38,6 +45,17 @@ def teardown_request(exception):
 
 
 api.add_resource(Index, '/')
+
+api.add_resource(GraphHandler, '/stats')
+
+api.add_resource(PredicatesHandler,
+                 '/graph/<path:graph>/predicates')
+
+api.add_resource(TriplesHandler,
+                 '/graph/<path:graph>/triples/p/<int:page>')
+
+api.add_resource(UuidHandler,
+                 '/graph/<path:graph>/uuid/<string:uuid>')
 
 api.add_resource(URLHandler,
                  '/graph/<path:graph>/url/<path:url>')

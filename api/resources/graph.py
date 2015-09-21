@@ -11,29 +11,30 @@ class GraphHandler(Resource):
                                    location='headers')
         super(GraphHandler, self).__init__()
 
-    def get(self, graph):
-        query_template_ds = """SELECT COUNT(DISTINCT ?dataset)
+    def get(self):
+
+
+        query_template_ds = """SELECT ?graph ?class (COUNT(DISTINCT ?dataset) AS ?count)
         WHERE {
-           GRAPH <%s> {
-           ?dataset owl:a dcat:Dataset .
+           GRAPH ?graph {
+           ?dataset owl:a ?class .
            }
-        }
+        } GROUP BY ?graph ?class
         """
 
-        query_template_url = """SELECT COUNT(DISTINCT ?url)
+        query_template_spo = """SELECT ?graph (COUNT(DISTINCT ?s) AS ?subjects)
+        (COUNT(DISTINCT ?p) AS ?predicates) (COUNT(DISTINCT ?o) AS ?objects)
         WHERE {
-           GRAPH <%s> {
-           ?dataset vcard:hasURL ?url .
+           GRAPH ?graph {
+           ?s ?p ?o .
            }
-        }
+        } GROUP BY ?graph
         """
-
-        q1 = query_template_ds % (graph)
-        q2 = query_template_url % (graph)
-        res1 = g.db.query(q1)
-        res2 = g.db.query(q2)
+        res1 = g.db.query(query_template_ds)
+        res2 = g.db.query(query_template_spo)
         if res1 is None or res2 is None:
             return Response(status=500, mimetype='application/json', content_type='application/json')
-        res = res1['bindings']
+        g_classes = res1['bindings']
+        g_stats = res2['bindings']
 
-        return res
+        return {'graph_classes': g_classes, 'graph_stats': g_stats }

@@ -12,7 +12,8 @@ class AppIndexTestCase(unittest.TestCase):
     def test_index(self):
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("version" in str(response.data))
+        self.assertTrue("Version" in str(response.data))
+        self.assertTrue("Endpoints" in str(response.data))
 
 
 if __name__ == '__main__':
