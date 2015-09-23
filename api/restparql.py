@@ -1,11 +1,12 @@
 import configparser
 from flask import Flask
 from flask import g
-from api.db.sparqldb import SparqlDB
 from flask_restful import Api
+from api.db.sparqldb import SparqlDB
 from api.resources.default import Index
-from api.resources.urls import URLStatusHandler
+from api.resources.urls import URLSHandler
 from api.resources.url import URLHandler
+from api.resources.status import URLStatusHandler
 from api.resources.graph import GraphHandler
 from api.resources.predicates import PredicatesHandler
 from api.resources.triples import TriplesHandler
@@ -13,6 +14,7 @@ from api.resources.uuid import UuidHandler
 
 app = Flask(__name__)
 api = Api(app)
+
 
 config = configparser.ConfigParser()
 config.read('./config/restparql.cfg')
@@ -60,6 +62,9 @@ api.add_resource(UuidHandler,
 api.add_resource(URLHandler,
                  '/graph/<path:graph>/url/<path:url>')
 
-api.add_resource(URLStatusHandler,
-                 '/graph/<path:graph>/urls',
+api.add_resource(URLSHandler,
                  '/graph/<path:graph>/urls/p/<int:page>')
+
+# POST, requires auth headers
+api.add_resource(URLStatusHandler,
+                 '/graph/<path:graph>/urls')

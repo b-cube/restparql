@@ -2,6 +2,7 @@ import unittest
 import json
 import urllib.parse as _pu
 from api import restparql
+from base64 import b64encode
 
 
 class AppURLSTestCase(unittest.TestCase):
@@ -10,6 +11,9 @@ class AppURLSTestCase(unittest.TestCase):
         restparql.app.config['TESTING'] = True
         self.app = restparql.app.test_client()
         self.mocked_response = ''
+        self.headers = {
+            'Authorization': 'Basic %s' % b64encode(b"user1:test1").decode("ascii")
+        }
 
     def mock_status(self, url, code):
         response = """
@@ -28,56 +32,61 @@ class AppURLSTestCase(unittest.TestCase):
         self.mocked_response += response
         return "[" + response + "]"
 
-    def test_POST_links_invalid_mime_type(self):
+    def test_POST_not_authenticated(self):
         response = self.app.post('/graph/urn%3Adev/urls', content_type='application/xml',
                                  data='{}')
+        self.assertEquals(401, response.status_code)
+
+    def test_POST_links_invalid_mime_type(self):
+        response = self.app.post('/graph/urn%3Adev/urls', content_type='application/xml',
+                                 data='{}', headers=self.headers)
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.status_code, 405)
 
     def test_POST_links_invalid_json(self):
         response = self.app.post('/graph/urn%3Adev/urls', content_type='application/json',
-                                 data='not json')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.status_code, 400)
+                                 data='not json', headers=self.headers)
+        self.assertEqual('application/json', response.content_type)
+        self.assertEqual(400, response.status_code)
 
     def test_POST_links_missing_json(self):
         response = self.app.post('/graph/urn%3Adev/urls', content_type='application/json',
-                                 data='')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.status_code, 400)
+                                 data='', headers=self.headers)
+        self.assertEqual('application/json', response.content_type)
+        self.assertEqual(400, response.status_code)
 
     def test_POST_links_valid_json(self):
         payload = self.mock_status('http://hazards.fema.gov', '301')
         response = self.app.post('/graph/urn%3Adev/urls', content_type='application/json',
-                                 data=payload)
+                                 data=payload, headers=self.headers)
+        self.assertEqual('application/json', response.content_type)
+        self.assertEqual(200, response.status_code)
         data = json.loads(response.data.decode(encoding='UTF-8'))
+        self.assertEqual('OK', data['response'])
 
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data['response'], 'OK')
 
     def test_GET_first_urls_page(self):
         response = self.app.get('/graph/urn%3Adev/urls/p/1',
                                  content_type='application/json')
         data = json.loads(response.data.decode(encoding='UTF-8'))
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['urls']), 100)
+        self.assertEqual('application/json', response.content_type)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(100, len(data['urls']))
 
     def test_GET_invalid_page_1(self):
         response = self.app.get('/graph/urn%3Adev/urls/p/-1',
                                  content_type='application/json')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(404, response.status_code)
 
     def test_GET_invalid_page_2(self):
         response = self.app.get('/graph/urn%3Adev/urls/p/a',
                                  content_type='application/json')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(404, response.status_code)
 
     def test_GET_invalid_page_3(self):
         response = self.app.get('/graph/urn%3Adev/urls/p/0',
                                  content_type='application/json')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(400, response.status_code)
 
 
 class AppURLTestCase(unittest.TestCase):
