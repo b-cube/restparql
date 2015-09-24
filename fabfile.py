@@ -22,6 +22,7 @@ def install_os_requirements_1():
     """ Install required packages. """
     sudo('apt-get update')
     sudo('apt-get install -y build-essential')
+    sudo('apt-get install -y python-dev')
     sudo('apt-get install -y python3.4-dev')
     sudo('apt-get install -y python-pip')
     sudo('apt-get install -y nginx')
