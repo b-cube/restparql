@@ -1,17 +1,29 @@
-from fabric.api import cd, sudo
+from fabric.api import cd, sudo, run, prefix
 from fabric.contrib.files import exists
+from fabric.state import env
+from contextlib import contextmanager as _contextmanager
+
 
 
 ##############
 ### config ###
 ##############
 
+
 git_repo = 'https://github.com/b-cube/restparql.git'
-app_dir = '/opt/restparql'
+app_dir = '~/restparql'
 virtualenv_dir = app_dir + '/env'
 flask_dir = app_dir + '/app'
 nginx_dir = '/etc/nginx/sites-enabled'
-supervisor_dir = '/etc/supervisor/conf.d'
+
+env.directory = virtualenv_dir
+env.activate = 'source {0}/bin/activate'.format(virtualenv_dir)
+
+@_contextmanager
+def virtualenv():
+    with cd(env.directory):
+        with prefix(env.activate):
+            yield
 
 
 #############
@@ -30,19 +42,20 @@ def install_os_requirements_1():
     sudo('apt-get install -y git')
     sudo('sudo pip install virtualenv')
 
+
 def checkout_project_2():
     """
     1. Create project directories
     2. checkout the latest code
     """
     if exists(app_dir) is False:
-        sudo('mkdir ' + app_dir)
+        run('mkdir ' + app_dir)
     if exists(flask_dir) is False:
         with cd(app_dir):
-            sudo('git clone ' + git_repo + ' ' + flask_dir)
+            run('git clone ' + git_repo + ' ' + flask_dir)
     else:
         with cd(flask_dir):
-            sudo('git pull --rebase')
+            run('git pull --rebase')
 
 
 def install_virtualenv_packages_3():
@@ -51,10 +64,10 @@ def install_virtualenv_packages_3():
     2. Install the requirements
     """
     if exists(virtualenv_dir) is False:
-        sudo('virtualenv -p python3 ' + virtualenv_dir)
-    sudo('source ' + virtualenv_dir + '/bin/activate')
-    sudo('pip install --upgrade pip')
-    sudo('pip install -r ' + flask_dir + '/requirements.txt')
+        run('virtualenv -p python3 ' + virtualenv_dir)
+    with virtualenv():
+        run('pip install --upgrade pip')
+        run('pip install -r ' + flask_dir + '/requirements.txt')
 
 
 def configure_nginx_4():
@@ -75,27 +88,20 @@ def configure_nginx_4():
     sudo('/etc/init.d/nginx restart')
 
 
-def configure_supervisor_5():
-    """
-    1. update supervisor config file
-    2. update supervisor
-    """
-    sudo('cp ' + flask_dir + '/config/restparql.conf ' +
-         '/etc/supervisor/conf.d/')
-    sudo('supervisorctl reread')
-    sudo('supervisorctl update')
-
-
 def run_app():
     """ Run the app! """
-    sudo('source ' + virtualenv_dir + '/bin/activate')
-    with cd(flask_dir):
-        sudo('supervisorctl start restparql')
+    with virtualenv():
+        with cd(flask_dir):
+            run('gunicorn app:app -b localhost:5000 -w4 --daemon', pty=False)
+
+
+def stop_app():
+    sudo('pkill gunicorn.*')
 
 
 def status():
     """ Is our app live? """
-    sudo('supervisorctl status')
+    run('ps -aux | grep gunicorn')
 
 
 def provision():
@@ -103,5 +109,5 @@ def provision():
     checkout_project_2()
     install_virtualenv_packages_3()
     configure_nginx_4()
-    configure_supervisor_5()
+
 
