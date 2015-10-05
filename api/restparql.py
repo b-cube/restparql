@@ -1,4 +1,8 @@
-import configparser
+try:
+    import configparser as configp
+except:
+    import ConfigParser as configp
+
 from flask import Flask
 from flask import g
 from flask_restful import Api
@@ -11,12 +15,13 @@ from api.resources.graph import GraphHandler
 from api.resources.predicates import PredicatesHandler
 from api.resources.triples import TriplesHandler
 from api.resources.uuid import UuidHandler
+from api.resources.urn import URNHandler
 
 app = Flask(__name__)
 api = Api(app)
 
 
-config = configparser.ConfigParser()
+config = configp.ConfigParser()
 config.read('./config/restparql.cfg')
 
 try:
@@ -35,6 +40,7 @@ def before_request():
     sparql_db.add_prefix('bcube', 'http://purl.org/esip/bcube#')
     sparql_db.add_prefix('dcat', 'http://www.w3.org/TR/vocab-dcat/#')
     sparql_db.add_prefix('owl', 'http://www.w3.org/2002/07/owl#')
+    sparql_db.add_prefix('foaf', 'http://xmlns.com/foaf/0.1/')
 
     g.db = sparql_db
 
@@ -58,6 +64,9 @@ api.add_resource(TriplesHandler,
 
 api.add_resource(UuidHandler,
                  '/graph/<path:graph>/uuid/<string:uuid>')
+
+api.add_resource(URNHandler,
+                 '/graph/<path:graph>/urn/<string:urn>')
 
 api.add_resource(URLHandler,
                  '/graph/<path:graph>/url/<path:url>')
