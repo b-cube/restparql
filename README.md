@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/b-cube/restparql.svg)](https://travis-ci.org/b-cube/restparql) ![Python](https://img.shields.io/badge/python-3.4-green.svg) ![Project Status](http://img.shields.io/badge/status-alpha-red.svg) 
+[![Build Status](https://travis-ci.org/b-cube/restparql.svg)](https://travis-ci.org/b-cube/restparql) ![Python](https://img.shields.io/badge/python-2.7%2C%203.4-green.svg) ![Project Status](http://img.shields.io/badge/status-alpha-red.svg) 
 
 RESTparql
 -------------
@@ -36,7 +36,7 @@ Usage
 ---------------
 Listing available endpoints
 ```sh
-curl http://RESTPARQL-SERVER:PORT/help
+curl http://RESTPARQL-SERVER:PORT/
 ```
 
 

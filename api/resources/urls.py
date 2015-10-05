@@ -32,6 +32,9 @@ class URLSHandler(Resource):
         WHERE {
             GRAPH <%s> {
                 ?service_urn vcard:hasURL ?base_url .
+                ?service_urn http:reasonPhrase ?reason .
+                ?service_urn http:statusCodeValue ?code .
+                ?service_urn prov:atTime ?checkedOn .
                 ?service_urn foaf:primaryTopic ?service_uuid .
             }
         }  OFFSET %s LIMIT 100
