@@ -6,6 +6,7 @@ except:
 from flask import Flask
 from flask import g
 from flask_restful import Api
+
 from api.db.sparqldb import SparqlDB
 from api.resources.default import Index
 from api.resources.urls import URLSHandler
@@ -16,6 +17,8 @@ from api.resources.predicates import PredicatesHandler
 from api.resources.triples import TriplesHandler
 from api.resources.uuid import UuidHandler
 from api.resources.urn import URNHandler
+from api.resources.objects import ObjectHandler
+from api.resources.filtered_urls import FilteredURLSHandler
 
 app = Flask(__name__)
 api = Api(app)
@@ -73,6 +76,12 @@ api.add_resource(URLHandler,
 
 api.add_resource(URLSHandler,
                  '/graph/<path:graph>/urls/p/<int:page>')
+
+api.add_resource(FilteredURLSHandler,
+                 '/graph/<path:graph>/urls/status/<int:status>/p/<int:page>')
+
+api.add_resource(ObjectHandler,
+                 '/graph/<path:graph>/objects/<path:predicate>/p/<int:page>')
 
 # POST, requires auth headers
 api.add_resource(URLStatusHandler,
