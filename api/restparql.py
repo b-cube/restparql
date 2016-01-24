@@ -12,18 +12,17 @@ from api.resources.default import Index
 from api.resources.urls import URLSHandler
 from api.resources.url import URLHandler
 from api.resources.status import URLStatusHandler
-from api.resources.graph import GraphHandler
 from api.resources.predicates import PredicatesHandler
 from api.resources.triples import TriplesHandler
 from api.resources.uuid import UuidHandler
 from api.resources.urn import URNHandler
 from api.resources.objects import ObjectHandler
 from api.resources.filtered_urls import FilteredURLSHandler
+from api.resources.osdd import OSDDHandler
+from api.resources.opensearch import OpenSearchHandler
 
 app = Flask(__name__)
 api = Api(app)
-
-
 config = configp.ConfigParser()
 config.read('./config/restparql.cfg')
 
@@ -44,6 +43,9 @@ def before_request():
     sparql_db.add_prefix('dcat', 'http://www.w3.org/TR/vocab-dcat/#')
     sparql_db.add_prefix('owl', 'http://www.w3.org/2002/07/owl#')
     sparql_db.add_prefix('foaf', 'http://xmlns.com/foaf/0.1/')
+    sparql_db.add_prefix('pcube', 'http://purl.org/BCube/#')
+    sparql_db.add_prefix('dct', 'http://purl.org/dc/terms/')
+    sparql_db.add_prefix('dc', 'http://purl.org/dc/elements/1.1/')
 
     g.db = sparql_db
 
@@ -57,7 +59,9 @@ def teardown_request(exception):
 
 api.add_resource(Index, '/')
 
-api.add_resource(GraphHandler, '/stats')
+api.add_resource(OSDDHandler, '/osdd')
+
+api.add_resource(OpenSearchHandler, '/opensearch/')
 
 api.add_resource(PredicatesHandler,
                  '/graph/<path:graph>/predicates')

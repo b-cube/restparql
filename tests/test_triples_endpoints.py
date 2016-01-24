@@ -13,7 +13,7 @@ class TriplesTestCase(unittest.TestCase):
 
     def test_GET_graph_triples(self):
         response = self.app.get('/graph/urn%3Adev/triples/p/1',
-                                 content_type='application/json')
+                                content_type='application/json')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data.decode(encoding='UTF-8'))
         self.assertTrue(isinstance(data['triples'], list))

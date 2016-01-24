@@ -9,6 +9,8 @@ info = {
 'Endpoints': [
     {'GET': [
         {'/stats': 'Returns the main counts for all the graphs ?g'},
+        {'/osdd': 'OpenSearch description document'},
+        {'/opensearch/': 'OpenSearch endpoint, see: /osdd'},
         {'/graph/{graph:url-escaped}/predicates': 'Returns a list of predicates used in the graph {graph}'},
         {'/graph/{graph:url-escaped}/urls/p/{page:int}': 'Returns a list of URLs and their IDs in the graph {graph}'},
         {'/graph/{graph:url-escaped}/urls/status/{status:int}/p/{page:int}': 'Returns a list of URLs and their '

@@ -17,7 +17,7 @@ class SparqlDB:
         self._credentials = None  # Auth
         self._prefixes = {}  # these will be used to store prefixes
         self._prefixes_query = ""  # the actual string used in the queries
-        self._timeout = 5  # seconds
+        self._timeout = 10  # seconds
         self._sparql = SPARQLWrapper(endpoint)
         self._sparql.setReturnFormat(JSON)
         self._sparql.setTimeout(self._timeout)
