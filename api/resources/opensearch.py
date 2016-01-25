@@ -67,11 +67,13 @@ class OpenSearchQueryBuilder():
         result_template = """        <entry>
           <id>%s</id>
           <title type="text">%s</title>
+          <link href="%s"/>
           <link rel="http://esip.org/ns/fedsearch/1.0/metadata#" href="%s"/>
           <content type="text">%s</content>
         </entry>"""
         res = "\n".join([result_template % (r['url'],
                                             self.escape_xml(r['title']),
+                                            r['url'],
                                             r['url'],
                                             self.escape_xml(r['summary'])) for r in results])
         return res
