@@ -42,6 +42,7 @@ def install_os_requirements_1():
     sudo('apt-get install -y nginx')
     sudo('apt-get install -y supervisor')
     sudo('apt-get install -y git')
+    sudo('apt-get install -y zlib1g-dev')
     sudo('sudo pip install virtualenv')
 
 
@@ -109,7 +110,7 @@ def status():
 def provision():
     install_os_requirements_1()
     checkout_project_2()
+    stop_app()
     install_virtualenv_packages_3()
+    run_app()
     configure_nginx_4()
-
-
