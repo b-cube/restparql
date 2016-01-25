@@ -15,21 +15,23 @@ class OpenSearchQueryBuilder():
     def get_current_args(self):
         return self.args
 
-    def build_sparql_query(self,args):
+    def build_sparql_query(self, args):
         """
-        Returns a SPARQL query and its count query, when using LIMIT there is no way to
-        get the total number of results but doing a separate COUNT query.
+        Returns a SPARQL query and its count query, when using LIMIT there
+        is no way to get the total number of results but doing a separate
+        COUNT query.
         see: http://www.openrdf.org/forum/mvnforum/viewthread?thread=2060
         """
         page = args['p']
         graph = args['g']
         query_terms = args['q'].split(' ')
-        filter_terms = ' || '.join('regex(?description, "%s","i")' % qt for qt in query_terms)
+        filter_terms = ' || '.join(
+            'regex(?description, "%s","i")' % qt for qt in query_terms)
 
         if page <= 0:
             page = 1
         self.current_offset = (page - 1) * 100
-        # This Query is binded to the ontology, currently will only work for g=dev:prod
+        # This Query is binded to the ontology, will only work for g=dev:prod
         query_template = """SELECT ?url ?title ?description
         WHERE {
             GRAPH <%s> {
@@ -60,8 +62,8 @@ class OpenSearchQueryBuilder():
 
     def escape_xml(self, string):
         escaped_str = string.replace('<', '&lt;').replace('>', '&gt;')
+        escaped_str = escaped_str.replace('&', '&amp;').replace('"', '&quot;')
         return escaped_str
-
 
     def build_results_feed(self, results):
         result_template = """        <entry>
@@ -75,7 +77,8 @@ class OpenSearchQueryBuilder():
                                             self.escape_xml(r['title']),
                                             r['url'],
                                             r['url'],
-                                            self.escape_xml(r['summary'])) for r in results])
+                                            self.escape_xml(r['summary']))
+                        for r in results])
         return res
 
     def build_header(self):
@@ -92,7 +95,9 @@ class OpenSearchQueryBuilder():
            <opensearch:startIndex>%s</opensearch:startIndex>
            <opensearch:itemsPerPage>10</opensearch:itemsPerPage>\n"""
         req_url = urllib.parse.quote(request.url)
-        return header_template % (req_url, req_url, self.total_results , self.current_offset)
+        return header_template % (req_url, req_url,
+                                  self.total_results,
+                                  self.current_offset)
 
     def get_results(self):
         q_counts, q_terms = self.build_sparql_query(self.args)
@@ -100,17 +105,18 @@ class OpenSearchQueryBuilder():
         res = g.db.query(q_terms)
         if res is None:
             return None
-        results = [{'title': r['title']['value'], 'url': r['url']['value'], 'summary': r['description']['value']}
+        results = [{'title': r['title']['value'],
+                    'url': r['url']['value'],
+                    'summary': r['description']['value']}
                    for r in res['bindings']]
         self.total_results = int(res_total['bindings'][0]['total']['value'])
         return results
-
 
     def build_feed(self, results):
         tail = """
         </feed>
         """
-        return self.build_header() + self.build_results_feed(results)+ tail
+        return self.build_header() + self.build_results_feed(results) + tail
 
 
 class OpenSearchHandler(Resource):
@@ -134,7 +140,6 @@ class OpenSearchHandler(Resource):
         self.reqparse.add_argument('p', type=int,
                                    location='args')
         super(OpenSearchHandler, self).__init__()
-
 
     def get(self):
         args = self.reqparse.parse_args()
