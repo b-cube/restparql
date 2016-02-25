@@ -32,7 +32,7 @@ class OpenSearchQueryBuilder():
             page = 1
         self.current_offset = (page - 1) * 100
         # This Query is binded to the ontology, will only work for g=dev:prod
-        query_template = """SELECT ?url ?title ?description
+        query_template = """SELECT ?url ?title ?description ?s ?origin
         WHERE {
             GRAPH <%s> {
                ?s foaf:primaryTopic ?topic .
@@ -70,13 +70,15 @@ class OpenSearchQueryBuilder():
           <id>%s</id>
           <title type="text">%s</title>
           <link href="%s"/>
+          <link rel="http://www.w3.org/1999/02/22-rdf-syntax-ns#type" href="%s"/>
           <link rel="http://esip.org/ns/fedsearch/1.0/metadata#" href="%s"/>
           <content type="text">%s</content>
         </entry>"""
         res = "\n".join([result_template % (r['url'],
                                             self.escape_xml(r['title']),
                                             r['url'],
-                                            r['url'],
+                                            r['record'],
+                                            r['metadata'],
                                             self.escape_xml(r['summary']))
                         for r in results])
         return res
@@ -107,7 +109,11 @@ class OpenSearchQueryBuilder():
             return None
         results = [{'title': r['title']['value'],
                     'url': r['url']['value'],
-                    'summary': r['description']['value']}
+                    'summary': r['description']['value'],
+                    'record': request.url_root +
+                              'graph/urn%3Aprod/uuid/' + r['s']['value'].replace('urn:uuid:', ''),
+                    'metadata': request.url_root +
+                                'graph/urn%3Aprod/uuid/' + r['origin']['value'].replace('urn:uuid:', '')}
                    for r in res['bindings']]
         self.total_results = int(res_total['bindings'][0]['total']['value'])
         return results

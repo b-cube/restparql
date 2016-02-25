@@ -8,7 +8,7 @@ class OpenSearchTestCase(unittest.TestCase):
     def setUp(self):
         restparql.app.config['TESTING'] = True
         self.app = restparql.app.test_client()
-        
+
     @unittest.skip("Uncomment for local testing")
     def test_GET_OpenSearch_returns_valid_feed(self):
         response = self.app.get('/opensearch/?q=a&p=1&g=urn:prod')
